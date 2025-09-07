@@ -3,88 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ultimate Habit Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#317EFB"/>
+  <title>Goal Tracker</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
-    <h1>Ultimate Habit Tracker</h1>
-    <div id="today-title"></div>
+    <h1>🎯 My Goal Tracker</h1>
 
-    <form id="habit-form" class="row">
-      <input type="text" id="habit-input" placeholder="Add a new habit..." required />
-      <button type="submit" id="add-btn">Add</button>
+    <!-- Goal Input -->
+    <form id="goal-form">
+      <input type="text" id="goal-input" placeholder="Enter your goal..." required />
+      <input type="date" id="goal-date" />
+      <button type="submit">Add Goal</button>
     </form>
 
-    <ul id="habit-list"></ul>
-
-    <div id="points-display"></div>
-
-    <div id="history">
-      <label for="date-picker">View Date:</label>
-      <input type="date" id="date-picker" />
-      <ul id="history-list"></ul>
-    </div>
+    <!-- Goals History -->
+    <section id="history">
+      <h3>My Goals</h3>
+      <ul id="goal-list"></ul>
+    </section>
 
     <!-- Calendar Section -->
-    <div id="month-calendar">
-      <h3>Monthly Progress</h3>
+    <section id="month-calendar">
+      <h3>Progress Calendar</h3>
       <div class="month-controls">
         <button id="prev-month" class="small">◀</button>
         <div id="month-label"></div>
         <button id="next-month" class="small">▶</button>
       </div>
       <div id="calendar-grid"></div>
-    </div>
+    </section>
 
-    <!-- Charts: weekly & monthly -->
-    <div id="charts" class="charts">
-      <h3>Summaries</h3>
-      <div class="chart-row">
-        <div class="chart-card">
-          <h4>Last 4 Weeks (completed %)</h4>
-          <canvas id="weeklyChart" width="400" height="180"></canvas>
-        </div>
-        <div class="chart-card">
-          <h4>Current Month (daily %)</h4>
-          <canvas id="monthlyChart" width="400" height="180"></canvas>
-        </div>
-      </div>
-    </div>
+    <!-- Points Section -->
+    <div id="points-display">Points: 0</div>
 
-    <!-- Reminder -->
-    <div id="reminder" class="backup-row">
-      <label for="reminder-time">Daily reminder (local):</label>
-      <input type="time" id="reminder-time"/>
-      <button id="set-reminder">Set</button>
-      <button id="clear-reminder">Clear</button>
-      <small id="reminder-note"></small>
-    </div>
-
-    <!-- Export/Import Section -->
-    <div id="backup" class="backup-row">
+    <!-- Backup Section -->
+    <section id="backup">
+      <h3>Backup / Restore</h3>
       <button id="export-btn">Export Data</button>
-      <input type="file" id="import-input" accept="application/json" style="display:none"/>
-      <button id="import-btn">Import Data</button>
-      <button id="clear-btn" title="Clear all data (irreversible)">Clear All</button>
-    </div>
-
-    <div id="notes">
-      <small>Data is stored locally. Use Export to backup and Import to restore. Notifications work while this page is open (see README for persistent options).</small>
-    </div>
+      <input type="file" id="import-file" />
+    </section>
   </div>
 
+  <!-- Confetti -->
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Scripts -->
   <script src="script.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch(e=>console.log('SW reg failed',e));
-    }
-  </script>
 </body>
 </html>
