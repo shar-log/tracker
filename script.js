@@ -1,5 +1,3 @@
-/* Habit Tracker with Proper History + Points */
-
 // --- Elements ---
 const habitForm = document.getElementById("habit-form");
 const habitInput = document.getElementById("habit-input");
@@ -14,13 +12,18 @@ const nextMonthBtn = document.getElementById("next-month");
 const monthLabel = document.getElementById("month-label");
 const calendarGrid = document.getElementById("calendar-grid");
 
+// --- Graphs ---
+const weeklyChartCtx = document.getElementById("weeklyChart").getContext("2d");
+const monthlyChartCtx = document.getElementById("monthlyChart").getContext("2d");
+
+let weeklyChart, monthlyChart;
+
 // --- Data ---
 let data = JSON.parse(localStorage.getItem("habitData")) || {
   habits: [],
-  history: {} // { "2025-09-08": [{id, name}] }
+  history: {} // { "2025-09-08": [id, id, ...] }
 };
 
-// --- Utils ---
 function save() {
   localStorage.setItem("habitData", JSON.stringify(data));
 }
@@ -48,12 +51,12 @@ function renderList(date) {
     const actions = document.createElement("div");
     actions.className = "habit-actions";
 
-    const done = data.history[date]?.some((x) => x.id === h.id);
+    const done = data.history[date]?.includes(h.id);
 
     const doneBtn = document.createElement("button");
     doneBtn.textContent = done ? "↩️" : "✅";
     doneBtn.title = done ? "Undo" : "Mark Done";
-    doneBtn.onclick = () => toggleDone(h.id, h.name, date);
+    doneBtn.onclick = () => toggleDone(h.id, date);
 
     const editBtn = document.createElement("button");
     editBtn.textContent = "✏️";
@@ -73,33 +76,36 @@ function renderList(date) {
   });
 }
 
-// --- Render History (exclude today) ---
+// --- Render History ---
 function renderHistory(date) {
   historyList.innerHTML = "";
   const days = Object.keys(data.history).sort().reverse();
   for (const d of days) {
-    if (d === date) continue; // skip today
+    if (d === date) continue;
     const title = document.createElement("h4");
     title.textContent = d;
     historyList.appendChild(title);
     const ul = document.createElement("ul");
-    data.history[d].forEach((h) => {
-      const li = document.createElement("li");
-      li.textContent = h.name;
-      ul.appendChild(li);
+    data.history[d].forEach((id) => {
+      const habit = data.habits.find((h) => h.id === id);
+      if (habit) {
+        const li = document.createElement("li");
+        li.textContent = habit.name;
+        ul.appendChild(li);
+      }
     });
     historyList.appendChild(ul);
   }
 }
 
 // --- Toggle Done ---
-function toggleDone(id, name, date) {
+function toggleDone(id, date) {
   data.history[date] = data.history[date] || [];
-  const idx = data.history[date].findIndex((x) => x.id === id);
+  const idx = data.history[date].indexOf(id);
   if (idx >= 0) {
     data.history[date].splice(idx, 1); // undo
   } else {
-    data.history[date].push({ id, name }); // keep name in history
+    data.history[date].push(id);
   }
   save();
   renderAll();
@@ -111,12 +117,6 @@ function editHabit(id) {
   const newName = prompt("Edit habit:", habit.name);
   if (newName && newName.trim()) {
     habit.name = newName.trim();
-    // also update history names
-    for (const day in data.history) {
-      data.history[day].forEach((h) => {
-        if (h.id === id) h.name = habit.name;
-      });
-    }
     save();
     renderAll();
   }
@@ -172,6 +172,57 @@ function renderCalendar(year, month) {
   }
 }
 
+// --- Graphs ---
+function renderGraphs() {
+  const today = new Date(datePicker.value);
+
+  // Weekly
+  const weekLabels = [];
+  const weekData = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = formatDateLocal(d);
+    weekLabels.push(ds.slice(5));
+    weekData.push(data.history[ds]?.length || 0);
+  }
+
+  if (weeklyChart) weeklyChart.destroy();
+  weeklyChart = new Chart(weeklyChartCtx, {
+    type: "bar",
+    data: {
+      labels: weekLabels,
+      datasets: [
+        { label: "Habits Done", data: weekData }
+      ]
+    }
+  });
+
+  // Monthly
+  const monthLabels = [];
+  const monthData = [];
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = formatDateLocal(new Date(year, month, d));
+    monthLabels.push(d);
+    monthData.push(data.history[dateStr]?.length || 0);
+  }
+
+  if (monthlyChart) monthlyChart.destroy();
+  monthlyChart = new Chart(monthlyChartCtx, {
+    type: "line",
+    data: {
+      labels: monthLabels,
+      datasets: [
+        { label: "Habits Done", data: monthData, fill: false, borderColor: "blue" }
+      ]
+    }
+  });
+}
+
 // --- Form Submit ---
 habitForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -205,6 +256,7 @@ function renderAll() {
   renderList(date);
   renderHistory(date);
   calculatePoints();
+  renderGraphs();
   const d = new Date(date);
   renderCalendar(d.getFullYear(), d.getMonth());
 }
