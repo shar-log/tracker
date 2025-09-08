@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Habit Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Habit Tracker</h1>
+  <div class="container">
+    <h1>Habit Tracker</h1>
 
-  <form id="habit-form">
-    <input id="habit-input" type="text" placeholder="New habit..." required />
-    <button type="submit">Add</button>
-  </form>
+    <div class="date-nav">
+      <button id="prev-month">⬅️</button>
+      <span id="month-label"></span>
+      <button id="next-month">➡️</button>
+    </div>
 
-  <div class="points" id="points-display"></div>
+    <input type="date" id="date-picker" />
+    <h2 id="today-title"></h2>
 
-  <input type="date" id="date-picker">
+    <form id="habit-form">
+      <input type="text" id="habit-input" placeholder="Enter new habit" />
+      <button type="submit">Add Habit</button>
+    </form>
 
-  <h2>Today's Habits</h2>
-  <ul id="habit-list"></ul>
+    <div id="points-display">Points: 0</div>
 
-  <h2>History</h2>
-  <ul id="history-list"></ul>
+    <h3>Today's Habits</h3>
+    <ul id="habit-list"></ul>
 
-  <div class="calendar-header">
-    <button id="prev-month">⬅️</button>
-    <span id="month-label"></span>
-    <button id="next-month">➡️</button>
+    <h3>History</h3>
+    <div id="history-list"></div>
+
+    <h3>Calendar</h3>
+    <div id="calendar-grid" class="calendar"></div>
+
+    <h3>Weekly Progress</h3>
+    <canvas id="weeklyChart" width="400" height="200"></canvas>
+
+    <h3>Monthly Progress</h3>
+    <canvas id="monthlyChart" width="400" height="200"></canvas>
   </div>
-  <div id="calendar-grid" class="calendar"></div>
 
   <script src="script.js"></script>
 </body>
