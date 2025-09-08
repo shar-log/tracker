@@ -121,12 +121,14 @@ li.done {
   height: 100%;
   z-index: 9999;
 }
-/* ---- NEW: Month controls layout ---- */
+/* ---- Month controls layout (fix for single line) ---- */
 .month-controls {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 1rem; /* spacing between arrow and month */
+  justify-content: center; /* keeps all 3 centered */
+  gap: 0.5rem; /* reduce space so they stay on one line */
+  white-space: nowrap; /* prevent wrapping */
 }
 
 #month-label {
