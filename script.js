@@ -1,67 +1,70 @@
-// ---- Helpers ----
+// ---------------- Helpers ----------------
 function formatDateLocal(date) {
   const d = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return d.toISOString().split("T")[0];
 }
-
 function uid() {
   return "_" + Math.random().toString(36).substr(2, 9);
 }
-
-// ---- Load or init storage ----
-let data = JSON.parse(localStorage.getItem("habit-data")) || {
-  habits: [],    // [{ id, name, archived }]
-  history: {},   // { "2025-09-08": { "_abc123": true, "_def456": false } }
-  points: 0
-};
-
 function save() {
   localStorage.setItem("habit-data", JSON.stringify(data));
 }
 
-// ---- Add Habit ----
+// ---------------- Data ----------------
+let data = JSON.parse(localStorage.getItem("habit-data")) || {
+  habits: [],   // [{ id, name, archived }]
+  history: {},  // { "2025-09-08": { "_abc123": true, ... } }
+  points: 0
+};
+
+// ---------------- Elements ----------------
 const habitForm = document.getElementById("habit-form");
 const habitInput = document.getElementById("habit-input");
+const habitList = document.getElementById("habit-list");
+const historyList = document.getElementById("history-list");
+const datePicker = document.getElementById("date-picker");
+const monthLabel = document.getElementById("month-label");
+const calendarGrid = document.getElementById("calendar-grid");
+const pointsDisplay = document.getElementById("points-display");
+const prevMonthBtn = document.getElementById("prev-month");
+const nextMonthBtn = document.getElementById("next-month");
 
+// ---------------- Init ----------------
+datePicker.value = formatDateLocal(new Date());
+
+// ---------------- Add Habit ----------------
 habitForm.addEventListener("submit", e => {
   e.preventDefault();
   const name = habitInput.value.trim();
-  if (name) {
-    data.habits.push({ id: uid(), name, archived: false });
-    save();
-    habitInput.value = "";
-    renderList(datePicker.value);
-  }
+  if (!name) return;
+  data.habits.push({ id: uid(), name, archived: false });
+  habitInput.value = "";
+  save();
+  renderAll();
 });
 
-// ---- Date Picker ----
-const datePicker = document.getElementById("date-picker");
-datePicker.value = formatDateLocal(new Date());
-datePicker.addEventListener("change", () => renderList(datePicker.value));
+// ---------------- Render ----------------
+function renderAll() {
+  const day = datePicker.value;
+  renderList(day);
+  renderHistory(day);
+  updateCalendar();
+  updatePoints();
+}
 
-// ---- Render Habits for Selected Day ----
 function renderList(day) {
-  const ul = document.getElementById("habit-list");
-  ul.innerHTML = "";
-
+  habitList.innerHTML = "";
   data.habits.filter(h => !h.archived).forEach(h => {
     const li = document.createElement("li");
 
-    const chk = document.createElement("input");
-    chk.type = "checkbox";
-    chk.checked = data.history[day]?.[h.id] || false;
-    chk.onchange = () => {
-      if (!data.history[day]) data.history[day] = {};
-      data.history[day][h.id] = chk.checked;
-      data.points += chk.checked ? 10 : -10;
-      save();
-      updateCalendar();
-      renderHistory(day);
-      updatePoints();
-    };
-    li.appendChild(chk);
+    // Done button
+    const doneBtn = document.createElement("button");
+    const done = !!(data.history[day] && data.history[day][h.id]);
+    doneBtn.textContent = done ? "↩️" : "✅";
+    doneBtn.onclick = () => toggleDone(h.id, day);
+    li.appendChild(doneBtn);
 
-    // Habit name (editable)
+    // Name (editable)
     const span = document.createElement("span");
     span.textContent = h.name;
     span.contentEditable = true;
@@ -72,101 +75,125 @@ function renderList(day) {
     };
     li.appendChild(span);
 
+    // Edit button
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.onclick = () => {
+      const newName = prompt("Edit habit:", h.name);
+      if (newName) {
+        h.name = newName.trim();
+        save();
+        renderAll();
+      }
+    };
+    li.appendChild(editBtn);
+
     // Delete/archive
-    const del = document.createElement("button");
-    del.textContent = "🗑";
-    del.onclick = () => deleteHabit(h.id);
-    li.appendChild(del);
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "🗑️";
+    delBtn.onclick = () => deleteHabit(h.id);
+    li.appendChild(delBtn);
 
-    ul.appendChild(li);
+    habitList.appendChild(li);
   });
-
-  renderHistory(day);
-  updateCalendar();
-  updatePoints();
 }
 
-// ---- Delete Habit (archive only) ----
-function deleteHabit(habitId) {
-  if (confirm("Delete this habit? (Past history will be kept)")) {
-    const habit = data.habits.find(h => h.id === habitId);
-    if (habit) habit.archived = true;
-    save();
-    renderList(datePicker.value);
-    renderHistory(datePicker.value);
-    updateCalendar();
-  }
-}
-
-// ---- Render History ----
 function renderHistory(day) {
-  const ul = document.getElementById("history-list");
-  ul.innerHTML = "";
-
-  const dayRecords = data.history[day] || {};
-  Object.keys(dayRecords).forEach(habitId => {
-    if (dayRecords[habitId]) {
+  historyList.innerHTML = "";
+  const records = data.history[day] || {};
+  Object.keys(records).forEach(habitId => {
+    if (records[habitId]) {
       const li = document.createElement("li");
       const habit = data.habits.find(h => h.id === habitId);
       li.textContent = habit ? habit.name : "(deleted habit)";
-      li.classList.add("done");
       if (habit?.archived) li.classList.add("archived");
-      ul.appendChild(li);
+      historyList.appendChild(li);
     }
   });
 }
 
-// ---- Calendar ----
-function updateCalendar() {
-  const grid = document.getElementById("calendar-grid");
-  const monthLabel = document.getElementById("month-label");
+// ---------------- Actions ----------------
+function toggleDone(habitId, day) {
+  if (!data.history[day]) data.history[day] = {};
+  const prev = data.history[day][habitId] || false;
+  data.history[day][habitId] = !prev;
+  data.points += data.history[day][habitId] ? 10 : -10;
+  save();
+  renderAll();
+}
 
-  grid.innerHTML = "";
-  const today = new Date(datePicker.value);
-  const y = today.getFullYear();
-  const m = today.getMonth();
+function deleteHabit(habitId) {
+  if (confirm("Delete this habit? Past history will be preserved.")) {
+    const h = data.habits.find(x => x.id === habitId);
+    if (h) h.archived = true;
+    save();
+    renderAll();
+  }
+}
+
+// ---------------- Calendar ----------------
+function updateCalendar() {
+  calendarGrid.innerHTML = "";
+  const d = new Date(datePicker.value);
+  const y = d.getFullYear();
+  const m = d.getMonth();
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-  monthLabel.textContent = today.toLocaleString("default", {
+  monthLabel.textContent = d.toLocaleString("default", {
     month: "long",
     year: "numeric"
   });
 
-  for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement("div"));
+  for (let i = 0; i < firstDay; i++) {
+    calendarGrid.appendChild(document.createElement("div"));
+  }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = formatDateLocal(new Date(y, m, d));
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = formatDateLocal(new Date(y, m, day));
     const div = document.createElement("div");
     div.className = "calendar-day";
-    div.textContent = d;
+    div.textContent = day;
 
-    const dayRecords = data.history[dateStr] || {};
-    const totalCount = Object.keys(dayRecords).length;
-    const doneCount = Object.values(dayRecords).filter(v => v).length;
+    const records = data.history[dateStr] || {};
+    const total = Object.keys(records).length;
+    const done = Object.values(records).filter(Boolean).length;
 
-    if (totalCount > 0) {
-      if (doneCount === totalCount) {
-        div.classList.add("done");
-        div.dataset.tooltip = `${doneCount}/${totalCount} habits done`;
-      } else if (doneCount > 0) {
-        div.classList.add("partial");
-        div.dataset.tooltip = `${doneCount}/${totalCount} habits done`;
-      } else {
-        div.dataset.tooltip = `0/${totalCount} habits done`;
-      }
+    if (total > 0) {
+      if (done === total) div.classList.add("done");
+      else if (done > 0) div.classList.add("partial");
+      div.dataset.tooltip = `${done}/${total} habits done`;
     }
 
-    grid.appendChild(div);
+    div.onclick = () => {
+      datePicker.value = dateStr;
+      renderAll();
+    };
+    calendarGrid.appendChild(div);
   }
 }
 
-// ---- Points ----
+// ---------------- Points ----------------
 function updatePoints() {
-  document.getElementById("points-display").textContent = `Points: ${data.points}`;
+  pointsDisplay.textContent = `Points: ${data.points}`;
 }
 
-// ---- Init ----
-renderList(datePicker.value);
-updateCalendar();
-updatePoints();
+// ---------------- Date change ----------------
+datePicker.addEventListener("change", () => renderAll());
+
+// ---------------- Month navigation ----------------
+prevMonthBtn.addEventListener("click", () => {
+  const d = new Date(datePicker.value);
+  d.setMonth(d.getMonth() - 1);
+  datePicker.value = formatDateLocal(d);
+  renderAll();
+});
+nextMonthBtn.addEventListener("click", () => {
+  const d = new Date(datePicker.value);
+  d.setMonth(d.getMonth() + 1);
+  datePicker.value = formatDateLocal(d);
+  renderAll();
+});
+
+// ---------------- Start ----------------
+renderAll();
