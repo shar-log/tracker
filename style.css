@@ -121,3 +121,16 @@ li.done {
   height: 100%;
   z-index: 9999;
 }
+/* ---- NEW: Month controls layout ---- */
+.month-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem; /* spacing between arrow and month */
+}
+
+#month-label {
+  font-weight: bold;
+  min-width: 120px; /* keeps it stable when month names vary */
+  text-align: center;
+}
