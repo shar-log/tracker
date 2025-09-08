@@ -1,90 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ultimate Habit Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#317EFB"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Ultimate Habit Tracker</h1>
-    <div id="today-title"></div>
+  <h1>Habit Tracker</h1>
 
-    <form id="habit-form" class="row">
-      <input type="text" id="habit-input" placeholder="Add a new habit..." required />
-      <button type="submit" id="add-btn">Add</button>
-    </form>
+  <form id="habit-form">
+    <input id="habit-input" type="text" placeholder="New habit..." required />
+    <button type="submit">Add</button>
+  </form>
 
-    <ul id="habit-list"></ul>
+  <div class="points" id="points-display"></div>
 
-    <div id="points-display"></div>
+  <input type="date" id="date-picker">
 
-    <div id="history">
-      <label for="date-picker">View Date:</label>
-      <input type="date" id="date-picker" />
-      <ul id="history-list"></ul>
-    </div>
+  <h2>Today's Habits</h2>
+  <ul id="habit-list"></ul>
 
-    <!-- Calendar Section -->
-    <div id="month-calendar">
-      <h3>Monthly Progress</h3>
-      <div class="month-controls">
-        <button id="prev-month" class="small">◀</button>
-        <div id="month-label"></div>
-        <button id="next-month" class="small">▶</button>
-      </div>
-      <div id="calendar-grid"></div>
-    </div>
+  <h2>History</h2>
+  <ul id="history-list"></ul>
 
-    <!-- Charts: weekly & monthly -->
-    <div id="charts" class="charts">
-      <h3>Summaries</h3>
-      <div class="chart-row">
-        <div class="chart-card">
-          <h4>Last 4 Weeks (completed %)</h4>
-          <canvas id="weeklyChart" width="400" height="180"></canvas>
-        </div>
-        <div class="chart-card">
-          <h4>Current Month (daily %)</h4>
-          <canvas id="monthlyChart" width="400" height="180"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reminder -->
-    <div id="reminder" class="backup-row">
-      <label for="reminder-time">Daily reminder (local):</label>
-      <input type="time" id="reminder-time"/>
-      <button id="set-reminder">Set</button>
-      <button id="clear-reminder">Clear</button>
-      <small id="reminder-note"></small>
-    </div>
-
-    <!-- Export/Import Section -->
-    <div id="backup" class="backup-row">
-      <button id="export-btn">Export Data</button>
-      <input type="file" id="import-input" accept="application/json" style="display:none"/>
-      <button id="import-btn">Import Data</button>
-      <button id="clear-btn" title="Clear all data (irreversible)">Clear All</button>
-    </div>
-
-    <div id="notes">
-      <small>Data is stored locally. Use Export to backup and Import to restore. Notifications work while this page is open (see README for persistent options).</small>
-    </div>
+  <div class="calendar-header">
+    <button id="prev-month">⬅️</button>
+    <span id="month-label"></span>
+    <button id="next-month">➡️</button>
   </div>
+  <div id="calendar-grid" class="calendar"></div>
 
-  <canvas id="confetti-canvas"></canvas>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch(e=>console.log('SW reg failed',e));
-    }
-  </script>
 </body>
 </html>
