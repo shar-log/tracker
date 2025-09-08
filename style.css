@@ -103,27 +103,6 @@ li.done {
   z-index: 10;
 }
 
-/* Month navigation controls */
-.month-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;   /* adjust spacing between arrows and month name */
-  margin: 0.5rem 0;
-}
-
-.month-controls button.small {
-  padding: 0.25rem 0.5rem;
-  font-size: 1rem;
-}
-
-#month-label {
-  min-width: 120px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.1rem; /* optional: makes it stand out */
-}
-
 /* Points display */
 #points-display {
   margin-top: 1rem;
