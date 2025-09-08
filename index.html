@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habit Tracker</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimate Habit Tracker</title>
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>Habit Tracker</h1>
+    <h1>Ultimate Habit Tracker</h1>
 
     <div class="date-nav">
       <button id="prev-month">⬅️</button>
@@ -17,21 +17,21 @@
       <button id="next-month">➡️</button>
     </div>
 
-    <input type="date" id="date-picker" />
+    <input type="date" id="date-picker">
     <h2 id="today-title"></h2>
 
     <form id="habit-form">
-      <input type="text" id="habit-input" placeholder="Enter new habit" />
+      <input type="text" id="habit-input" placeholder="Enter new habit">
       <button type="submit">Add Habit</button>
     </form>
 
-    <div id="points-display">Points: 0</div>
+    <div id="points-display">Points today: 0</div>
 
     <h3>Today's Habits</h3>
     <ul id="habit-list"></ul>
 
     <h3>History</h3>
-    <div id="history-list"></div>
+    <ul id="history-list"></ul>
 
     <h3>Calendar</h3>
     <div id="calendar-grid" class="calendar"></div>
@@ -42,6 +42,8 @@
     <h3>Monthly Progress</h3>
     <canvas id="monthlyChart" width="400" height="200"></canvas>
   </div>
+
+  <canvas id="confetti-canvas"></canvas>
 
   <script src="script.js"></script>
 </body>
