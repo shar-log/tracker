@@ -136,3 +136,11 @@ li.done {
   min-width: 120px; /* keeps it stable when month names vary */
   text-align: center;
 }
+
+/* Archived habits (deleted but history kept) */
+li.archived {
+  opacity: 0.6;
+  font-style: italic;
+  color: #ccc;
+}
+
